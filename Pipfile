@@ -1,0 +1,37 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+boto3 = "==1.20.54"
+requests = "*"
+argparse = "*"
+pydantic = "*"
+
+[dev-packages]
+black = "*"
+flake8 = "*"
+isort = "*"
+mypy = "*"
+pre-commit = "*"
+pylint = "*"
+pytest = "*"
+pytest-cov = "*"
+factory-boy = "*"
+moto = {extras = ["dynamodb2", "sns", "sqs"], version = "*"}
+boto3-stubs = {extras = ["dynamodb", "sns", "sqs"], version = "*"}
+
+[requires]
+python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true
+
+[scripts]
+unit = "./bin/unit.sh"
+lint = "./bin/lint.sh"
+coverage = "./bin/coverage.sh"
+integration = "./bin/integration.sh"
+lock = "./bin/lock.sh"
+deploy = "./bin/deploy.sh"
