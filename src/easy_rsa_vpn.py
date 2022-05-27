@@ -23,8 +23,6 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from pydantic import FileUrl, HttpUrl
 
-# from tqdm import tqdm
-
 LOGGER = logging.getLogger(__name__)
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -305,10 +303,9 @@ class EasyRSA(CommandLine):
         with ignore_user_entered_signals():
             self.run(["build-server-full", "server", "nopass", "nopass"])
 
-    def generate_clients(self, clients):
+    def generate_client(self, client):
         with ignore_user_entered_signals():
-            for client in clients:
-                self.run(["build-client-full", client, "nopass", "nopass"])
+            self.run(["build-client-full", client, "nopass", "nopass"])
 
 
 def parse_args():
@@ -377,16 +374,16 @@ def main():
     args = parse_args()
     easy_rsa = EasyRSA()
 
-    easy_rsa.init()
-    easy_rsa.generate_server()
-
     curr_dir = Path(__file__).parent.parent
     acm = AwsAcm(
         profile_name=args.profile,
         certificate_domain=args.domain,
     )
 
-    easy_rsa.generate_clients(acm.certificate_domain)
+    easy_rsa.init()
+    easy_rsa.generate_server()
+    easy_rsa.generate_client(acm.certificate_domain)
+
     for client in ["server", acm.certificate_domain]:
         process(
             acm.region,
@@ -396,27 +393,6 @@ def main():
             f"{curr_dir}/pki/private/{client}.key",
             f"{curr_dir}/pki/ca.crt",
         )
-
-    # webbrowser.open(cert_url)
-
-    # client_vpn_endpoints = easy_rsa.aws_cli_execute(
-    #     acm.profile_name, "ec2", ["describe-client-vpn-endpoints"]
-    # )["ClientVpnEndpoints"]
-
-    # endpoints = {}
-    # for endpoint in client_vpn_endpoints:
-    #     endpoint["Name"] = [
-    #         tag["Value"] for tag in endpoint["Tags"] if tag.get("Key") == "Name"
-    #     ].pop()
-    #     endpoints[endpoint["Name"]] = endpoint
-
-    # endpoint_name = acm._prompt("endpoint name", endpoints.keys())
-    # endpoint = endpoints[endpoint_name]
-
-    # endpoint_url = f"{aws_root}/vpc/home#ClientVPNEndpointDetails:clientVpnEndpointId={endpoint['ClientVpnEndpointId']}"
-    # webbrowser.open(endpoint_url)
-
-    # print("Fin.")
 
 
 if __name__ == "__main__":
